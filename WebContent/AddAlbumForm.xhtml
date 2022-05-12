@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:fn="http://java.sun.com/jsp/jstl/functions"> 
+
+<h:head>
+<title>Add Music Album</title>
+<header>
+		<h1 align='center'>Add Music Album</h1>
+	</header>
+</h:head> 
+<body> 	
+	<h:form id="addAlbumForm">
+	
+		<h:messages/>
+		
+		<h:outputLabel for="title">Title</h:outputLabel>		
+		<h:inputText id="title" value="#{album.title}" required="true" requiredMessage="Title is required"/><br/>
+		
+		<h:outputLabel for="artist">Artist</h:outputLabel>
+		<h:inputText id="artist" value="#{album.artist}" required="true" requiredMessage="Artist is required"/><br/>
+		
+		<h:outputLabel for="year">Year</h:outputLabel>
+		<h:inputText id="year" value="#{album.year}" minlength='1' required="true" requiredMessage="Year is required"/><br/>
+		
+		<h:commandButton id="submit" value="Submit" action="#{albumController.onSubmit(album)}"/>
+		<div/>
+		<h:commandButton id="submitFind" value="Submit" action="#{albumController.onFind(album)}"/>
+	</h:form>
+	
+</body> 
+</html>
