@@ -1,55 +1,49 @@
 package business;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.el.ELException;
+import javax.inject.Inject;
+import javax.interceptor.Interceptors;
 
 import beans.Album;
 import beans.Track;
+import data.DataAccessInterface;
 import data.MusicDataService;
 import util.AlbumNotFoundException;
 import util.DatabaseException;
+import util.LoggingInterceptor;
 import util.TracksNotFoundException;
 
 @Stateless
-public class MusicManager implements MusicManagerInterface{
+@Interceptors(LoggingInterceptor.class)
+public class MusicManager implements MusicManagerInterface, Serializable{
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	@EJB
+	private DataAccessInterface<Album> dao; 
+	
+	@Inject
+	private TrackFinderInterface tf;
+	
+	@EJB
+	private Cache cache;
 
 	public HashMap<String, List<Track>> trackList;
 	public List<Track> tList;
 	
 	public MusicManager(){
-		this.trackList = new HashMap<String, List<Track>>();
-		this.tList = new ArrayList<Track>();
 		
-		
-		/* Generating Mock TrackLists */
-		List<Track> tracks1 = new ArrayList<Track>();
-		for(int i = 0; i <11; i++){
-			Track track = new Track("Title " + i, i);
-			tracks1.add(track);
-			this.tList.add(track);
-		}
-		this.trackList.put("Album 1 || Artist 1 || 1920", tracks1);
-		
-		List<Track> tracks2 = new ArrayList<Track>();
-		for(int i = 0; i <11; i++){
-			Track track = new Track("Title " + i, i);
-			tracks2.add(track);
-		}
-		this.trackList.put("Album 2 || Artist 2 || 1921", tracks2);
-		
-		List<Track> tracks3 = new ArrayList<Track>();
-		for(int i = 0; i <11; i++){
-			Track track = new Track("Title " + i, i);
-			tracks3.add(track);
-		}
-		this.trackList.put("Album 3 || Artist 3 || 1922", tracks3);
-		
-		System.out.println(this.trackList);
 	}
 	
 	@Override
@@ -63,45 +57,35 @@ public class MusicManager implements MusicManagerInterface{
 		else{
 			model.setTracks(tracks);
 			
-			MusicDataService service = new MusicDataService();
-			service.create(model);
+			//MusicDataService service = new MusicDataService();
+			dao.create(model);
 			
 			return model;
 		}		
 	}
 	
-	private List<Track> getTracks(Album album){
-		String title = album.getTitle().trim() + " || ";
-		String artist = album.getArtist().trim() + " || ";
-		String year = Integer.toString(album.getYear()).trim();
-		
-		String key = title + artist + year;
-		
-		try{
-			List<Track> list = new ArrayList<>(this.trackList.get(key));
-			
-			if(list.isEmpty()){
-				throw new Exception("ERROR: Tracks could not be found");
-			}
-			else{
-				return list;
-			}
-		}catch(Exception e){
-			throw new TracksNotFoundException("ERROR: Track could not be found");
-		}
+	public List<Track> getTracks(Album album){
+		return tf.getTracks(album);
 	}
 	
 	public Album getAlbum(Album album){
 		
-		MusicDataService service = new MusicDataService();
-		
-		if(service.findBy(album).tracks == null)
-		{
-			String errorMessage = "ERROR: Album was not found within the Database";
-			throw new AlbumNotFoundException(errorMessage);
+		if(cache.getObject(album) != null){
+			return cache.getObject(album);
 		}
-		else{
-			return service.findBy(album);
+		else
+		{
+			//MusicDataService service = new MusicDataService();
+			Album a = dao.findBy(album);
+			if(a.tracks == null)
+			{
+				String errorMessage = "ERROR: Album was not found within the Database";
+				throw new AlbumNotFoundException(errorMessage);
+			}
+			else{
+				cache.putObject(a);
+				return a;
+			}
 		}
 	}
 

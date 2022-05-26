@@ -10,6 +10,8 @@ public class ResponseDataModel extends ResponseModel{
 
 	private Album data;
 	
+	public ResponseDataModel(){}
+	
 	public ResponseDataModel(int status, String message, Album data) {
 		super(status, message);
 		this.data = data;

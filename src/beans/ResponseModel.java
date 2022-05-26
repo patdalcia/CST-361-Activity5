@@ -5,6 +5,8 @@ public class ResponseModel {
 	private int status;
 	private String message;
 	
+	public ResponseModel(){}
+	
 	public ResponseModel(int status, String message)
 	{
 		this.status = status;

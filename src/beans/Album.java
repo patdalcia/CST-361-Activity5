@@ -1,5 +1,6 @@
 package beans;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
@@ -9,10 +10,13 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @ManagedBean
 @ViewScoped
-public class Album {
+
+public class Album implements Serializable{
 
 	@NotNull()
 	@Size(min=5, max=50)

@@ -1,5 +1,6 @@
 package data;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -10,16 +11,24 @@ import java.util.List;
 import javax.ejb.Local;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
 
 import beans.Album;
 import beans.Track;
 import util.DatabaseException;
+import util.LoggingInterceptor;
 
 
 @Stateless
 @Local(DataAccessInterface.class)
 @LocalBean
-public class MusicDataService implements DataAccessInterface<Album>{
+@Interceptors(LoggingInterceptor.class)
+public class MusicDataService implements DataAccessInterface<Album>, Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/**
      * Default constructor. 
@@ -120,7 +129,7 @@ public class MusicDataService implements DataAccessInterface<Album>{
 	{
 		// DB Connection Info
 		Connection conn = null;
-		String url = "jdbc:mysql://localhost:336/music";
+		String url = "jdbc:mysql://localhost:3306/music";
 		String username = "root";
 		String password = "password";
 		
@@ -131,7 +140,7 @@ public class MusicDataService implements DataAccessInterface<Album>{
 			conn = DriverManager.getConnection(url, username, password);
 			
 			// Execute SQL Query and loop over result set
-			String sql1 = String.format("SELECT * FROM ALBUM WHERE TITLE='%S' AND ARTIST='%S' AND YEAR=%d", album.getTitle(), album.getArtist(), album.getYear());
+			String sql1 = String.format("SELECT * FROM music.ALBUM WHERE TITLE='%S' AND ARTIST='%S' AND YEAR=%d", album.getTitle(), album.getArtist(), album.getYear());
 			Statement stmt1 = conn.createStatement();
 			ResultSet rs1 = stmt1.executeQuery(sql1);
 			if(!rs1.next())
@@ -148,7 +157,7 @@ public class MusicDataService implements DataAccessInterface<Album>{
 				
 			// Query for all the Albums Tracks
 			List<Track> tracks = new ArrayList<Track>();
-			String sql2 = "SELECT * FROM TRACK WHERE ALBUM_ID = " + rs1.getInt("ID");
+			String sql2 = "SELECT * FROM music.TRACK WHERE ALBUM_ID = " + rs1.getInt("ID");
 			Statement stmt2 = conn.createStatement();
 			ResultSet rs2 = stmt2.executeQuery(sql2);
 			while(rs2.next())

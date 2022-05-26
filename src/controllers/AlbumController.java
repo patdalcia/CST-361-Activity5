@@ -1,24 +1,39 @@
 package controllers;
 
+import java.io.Serializable;
+
+import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.faces.view.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.inject.Named;
+import javax.interceptor.Interceptors;
 
 import beans.Album;
 import business.MusicManager;
+import business.MusicManagerInterface;
 import util.AlbumNotFoundException;
+import util.LoggingInterceptor;
 import util.TracksNotFoundException;
 
-@ManagedBean(name = "albumController")
+@Named
 @ViewScoped
-public class AlbumController {
+@Interceptors(LoggingInterceptor.class)
+public class AlbumController implements Serializable{
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	@EJB
+	private MusicManagerInterface mgr;
 
 	public String onSubmit(Album album){
 		
-		MusicManager manager = new MusicManager();
+		//MusicManager manager = new MusicManager();
 	
 		try{
-			FacesContext.getCurrentInstance().getExternalContext().getRequestMap().put("album", manager.addAlbum(album));
+			FacesContext.getCurrentInstance().getExternalContext().getRequestMap().put("album", mgr.addAlbum(album));
 			
 			return "AddAlbumResponse";
 		}catch(Exception e){
@@ -31,11 +46,11 @@ public class AlbumController {
 	
 	public String onFind(Album album)
 	{
-		MusicManager manager = new MusicManager();
+		//MusicManager manager = new MusicManager();
 		
 		try
 		{
-			FacesContext.getCurrentInstance().getExternalContext().getRequestMap().put("album", manager.getAlbum(album));
+			FacesContext.getCurrentInstance().getExternalContext().getRequestMap().put("album", mgr.getAlbum(album));
 			return "AddAlbumResponse";
 		}
 		catch(Exception e)
